@@ -8,7 +8,8 @@
     android:layout_height="wrap_content"
     android:background="@color/white"
     android:layout_marginTop="8dp"
-    android:layout_marginBottom="8dp">
+    android:layout_marginBottom="8dp"
+    android:elevation="4dp">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -20,21 +21,24 @@
         app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
     <TextView
+        android:id="@+id/message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="16sp"
         android:padding="8dp"
         android:layout_margin="8dp"
+        android:ellipsize="end"
         tools:text="Lorem ipsum dolor sit amet, consecteturadipiscing elit. Donec viverra eget nullavitae ornare."
-        android:gravity="center"
-        android:maxLines="2"
+        android:gravity="start"
+        android:maxLines="3"
         android:minLines="2"/>
 
     <TextView
+        android:id="@+id/address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="12sp"
-        android:textColor="@color/secondaryLightColor"
+        android:textColor="@color/secondaryColor"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="8dp"

@@ -56,6 +56,7 @@
                 android:layout_marginEnd="8dp"
                 android:minHeight="48dp"
                 android:hint="@string/enter_note_here"
+                android:inputType="textCapSentences"
                 style="@style/Widget.AppCompat.EditText"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
