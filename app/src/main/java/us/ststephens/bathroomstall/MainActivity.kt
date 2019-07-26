@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.*
 
@@ -19,7 +20,8 @@ import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: NoteListViewModel
-    var noteEntryBox: EditText? = null
+    private var noteEntryBox: EditText? = null
+    private var swipeRefreshLayout: SwipeRefreshLayout? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         viewModel = ViewModelProviders.of(this)[NoteListViewModel::class.java]
         noteEntryBox = findViewById(R.id.note_entry_box)
+        swipeRefreshLayout = findViewById(R.id.swiperefresh)
 
         findViewById<ImageView>(R.id.send_button).setOnClickListener {
            noteEntryBox?.text?.takeIf { it.isNotBlank() }?.toString()?.let { message ->
@@ -65,8 +68,19 @@ class MainActivity : AppCompatActivity() {
 
     private val noteListObserver = Observer<NetworkState<QuerySnapshot>> { state ->
         when(state) {
-            is NetworkState.Loading -> {}
-            is NetworkState.Error -> {}
+            is NetworkState.Success -> {
+                swipeRefreshLayout?.let {
+                    it.isRefreshing = false
+                    it.isEnabled = false
+                }
+            }
+            is NetworkState.Loading -> {
+                swipeRefreshLayout?.let {
+                    it.isEnabled = true
+                    it.isRefreshing = true
+                }
+            }
+            is NetworkState.Error -> swipeRefreshLayout?.isRefreshing = false
         }
     }
 }
