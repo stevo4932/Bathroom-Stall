@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".MainActivity">
+    android:id="@+id/coordinator"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:theme="@style/AppTheme.AppBarOverlay">
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:theme="@style/AppTheme.AppBarOverlay">
 
         <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay"/>
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -66,21 +67,33 @@
                     style="@style/Widget.AppCompat.EditText"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/send_button"/>
+                    app:layout_constraintEnd_toStartOf="@id/send_control_switcher"/>
 
-                <ImageView
-                    android:id="@+id/send_button"
+                <ViewSwitcher
+                    android:id="@+id/send_control_switcher"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
-                    android:src="@drawable/ic_send_black_24dp"
-                    android:padding="8dp"
                     android:layout_marginEnd="8dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf="@id/note_entry_box"
                     app:layout_constraintStart_toEndOf="@id/note_entry_box"
-                    app:layout_constraintTop_toTopOf="@id/note_entry_box"
-                    android:tint="@color/secondaryDarkColor"
-                    android:contentDescription="@string/send_note"/>
+                    app:layout_constraintTop_toTopOf="@id/note_entry_box">
+
+                    <ImageView
+                        android:id="@+id/send_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_send_black_24dp"
+                        android:padding="8dp"
+                        android:tint="@color/secondaryDarkColor"
+                        android:contentDescription="@string/send_note"/>
+
+                    <ProgressBar
+                        android:id="@+id/send_progress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent" />
+
+                </ViewSwitcher>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

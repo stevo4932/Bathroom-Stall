@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.ViewSwitcher
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: NoteListViewModel
     private var noteEntryBox: EditText? = null
     private var swipeRefreshLayout: SwipeRefreshLayout? = null
+    private var viewSwitcher: ViewSwitcher? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,11 +32,13 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this)[NoteListViewModel::class.java]
         noteEntryBox = findViewById(R.id.note_entry_box)
         swipeRefreshLayout = findViewById(R.id.swiperefresh)
+        viewSwitcher = findViewById(R.id.send_control_switcher)
+        viewSwitcher?.displayedChild = 0
 
         findViewById<ImageView>(R.id.send_button).setOnClickListener {
            noteEntryBox?.text?.takeIf { it.isNotBlank() }?.toString()?.let { message ->
                viewModel.postNote(message).observe(this, postNoteObserver)
-            } ?: Snackbar.make(findViewById(android.R.id.content), "No message to send", Snackbar.LENGTH_SHORT).show()
+            } ?: Snackbar.make(findViewById(R.id.coordinator), "No message to send", Snackbar.LENGTH_SHORT).show()
         }
 
         findViewById<RecyclerView>(R.id.notes_list).let { recyclerView ->
@@ -47,22 +51,33 @@ class MainActivity : AppCompatActivity() {
 
     private fun messageAdded(messageId: String) {
         noteEntryBox?.text = null
-        Snackbar.make(findViewById<View>(android.R.id.content), "messageId: $messageId", Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(findViewById<View>(R.id.coordinator), "messageId: $messageId", Snackbar.LENGTH_SHORT).show()
         Log.d("BathroomStall", "messageId: $messageId")
     }
 
     private fun errorAddingMessage(e: Exception) {
-        Snackbar.make(findViewById<View>(android.R.id.content), "Error adding document. See log for more info", Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(findViewById<View>(R.id.coordinator), "Error adding document. See log for more info", Snackbar.LENGTH_SHORT).show()
         Log.w("BathroomStall", "Error adding document", e)
     }
 
     private val postNoteObserver = Observer<NetworkState<DocumentReference>> { state ->
         when(state) {
-            is NetworkState.Success -> state.data?.id?.let {
-                messageAdded(it)
-            } ?: errorAddingMessage(Exception("No note id returned"))
-            is Error -> errorAddingMessage(state.error ?: Exception())
-            is NetworkState.Loading -> {}
+            is NetworkState.Success -> {
+                noteEntryBox?.isEnabled = true
+                viewSwitcher?.displayedChild = 0
+                state.data?.id?.let {
+                    messageAdded(it)
+                } ?: errorAddingMessage(Exception("No note id returned"))
+            }
+            is Error -> {
+                noteEntryBox?.isEnabled = true
+                viewSwitcher?.displayedChild = 0
+                errorAddingMessage(state.error ?: Exception())
+            }
+            is NetworkState.Loading -> {
+                noteEntryBox?.isEnabled = false
+                viewSwitcher?.displayedChild = 1
+            }
         }
     }
 
