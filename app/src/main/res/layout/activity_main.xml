@@ -31,6 +31,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             app:layout_behavior="us.ststephens.bathroomstall.MoveUpwardBehavior">
 
             <androidx.recyclerview.widget.RecyclerView
@@ -86,7 +88,8 @@
                         android:src="@drawable/ic_send_black_24dp"
                         android:padding="8dp"
                         android:tint="@color/secondaryDarkColor"
-                        android:contentDescription="@string/send_note"/>
+                        android:contentDescription="@string/send_note"
+                        android:background="?attr/selectableItemBackgroundBorderless"/>
 
                     <ProgressBar
                         android:id="@+id/send_progress"
