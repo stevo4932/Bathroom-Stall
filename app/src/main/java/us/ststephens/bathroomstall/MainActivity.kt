@@ -1,6 +1,8 @@
 package us.ststephens.bathroomstall
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View
@@ -35,10 +37,14 @@ class MainActivity : AppCompatActivity() {
         viewSwitcher = findViewById(R.id.send_control_switcher)
         viewSwitcher?.displayedChild = 0
 
-        findViewById<ImageView>(R.id.send_button).setOnClickListener {
-           noteEntryBox?.text?.takeIf { it.isNotBlank() }?.toString()?.let { message ->
-               viewModel.postNote(message).observe(this, postNoteObserver)
-            } ?: Snackbar.make(findViewById(R.id.coordinator), "No message to send", Snackbar.LENGTH_SHORT).show()
+        findViewById<ImageView>(R.id.send_button).let { sendButton ->
+            toggleSendButton(sendButton, noteEntryBox?.text?.isNotEmpty() == true)
+            noteEntryBox?.addTextChangedListener(MessageChangeListener(sendButton))
+            sendButton.setOnClickListener {
+                noteEntryBox?.text?.takeIf { it.isNotBlank() }?.toString()?.let { message ->
+                    viewModel.postNote(message).observe(this, postNoteObserver)
+                } ?: Snackbar.make(findViewById(R.id.coordinator), "No message to send", Snackbar.LENGTH_SHORT).show()
+            }
         }
 
         findViewById<RecyclerView>(R.id.notes_list).let { recyclerView ->
@@ -58,6 +64,21 @@ class MainActivity : AppCompatActivity() {
     private fun errorAddingMessage(e: Exception) {
         Snackbar.make(findViewById<View>(R.id.coordinator), "Error adding document. See log for more info", Snackbar.LENGTH_SHORT).show()
         Log.w("BathroomStall", "Error adding document", e)
+    }
+
+    inner class MessageChangeListener(private val view: View):  TextWatcher {
+        override fun afterTextChanged(s: Editable?) {}
+
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            toggleSendButton(view, !s.isNullOrBlank())
+        }
+    }
+
+    private fun toggleSendButton(view: View, isEnabled: Boolean) {
+        view.isEnabled = isEnabled
+        view.alpha = if (isEnabled) 1f else .65f
     }
 
     private val postNoteObserver = Observer<NetworkState<DocumentReference>> { state ->
