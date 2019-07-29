@@ -1,5 +1,7 @@
 package us.ststephens.bathroomstall
 
+import android.content.Context
+import android.util.AttributeSet
 import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.snackbar.Snackbar
@@ -8,7 +10,7 @@ import androidx.core.view.ViewCompat
 
 
 
-class MoveUpwardBehavior : CoordinatorLayout.Behavior<View>() {
+class MoveUpwardBehavior(context: Context? = null, attributeSet: AttributeSet? = null) : CoordinatorLayout.Behavior<View>(context, attributeSet) {
 
     override fun layoutDependsOn(parent: CoordinatorLayout, child: View, dependency: View): Boolean =
         dependency is Snackbar.SnackbarLayout

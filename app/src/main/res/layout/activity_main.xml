@@ -8,100 +8,105 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_height="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        app:layout_behavior="us.ststephens.bathroomstall.MoveUpwardBehavior">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay"/>
+            android:theme="@style/AppTheme.AppBarOverlay"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swiperefresh"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swiperefresh"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            app:layout_behavior="us.ststephens.bathroomstall.MoveUpwardBehavior">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:id="@+id/notes_list"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                tools:listitem="@layout/note_list_item"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/add_note_container"/>
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/add_note_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/notes_list"
-                android:layout_margin="8dp"
-                android:padding="8dp"
-                android:background="@color/white">
+                android:layout_height="match_parent"
+                android:focusable="true"
+                android:focusableInTouchMode="true">
 
-                <EditText
-                    android:id="@+id/note_entry_box"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:minHeight="48dp"
-                    android:hint="@string/enter_note_here"
-                    android:inputType="textCapSentences"
-                    style="@style/Widget.AppCompat.EditText"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/send_control_switcher"/>
-
-                <ViewSwitcher
-                    android:id="@+id/send_control_switcher"
-                    android:layout_width="wrap_content"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:layout_width="match_parent"
                     android:layout_height="0dp"
+                    android:id="@+id/notes_list"
+                    android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
+                    tools:listitem="@layout/note_list_item"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf="@id/note_entry_box"
-                    app:layout_constraintStart_toEndOf="@id/note_entry_box"
-                    app:layout_constraintTop_toTopOf="@id/note_entry_box">
+                    app:layout_constraintBottom_toTopOf="@id/add_note_container"/>
 
-                    <ImageView
-                        android:id="@+id/send_button"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/add_note_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/notes_list"
+                    android:layout_margin="8dp"
+                    android:padding="8dp"
+                    android:background="@color/white">
+
+                    <EditText
+                        android:id="@+id/note_entry_box"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:minHeight="48dp"
+                        android:hint="@string/enter_note_here"
+                        android:inputType="textCapSentences"
+                        style="@style/Widget.AppCompat.EditText"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/send_control_switcher"/>
+
+                    <ViewSwitcher
+                        android:id="@+id/send_control_switcher"
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/ic_send_black_24dp"
-                        android:padding="8dp"
-                        android:tint="@color/secondaryDarkColor"
-                        android:contentDescription="@string/send_note"
-                        android:background="?attr/selectableItemBackgroundBorderless"/>
+                        android:layout_height="0dp"
+                        android:layout_marginEnd="8dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="@id/note_entry_box"
+                        app:layout_constraintStart_toEndOf="@id/note_entry_box"
+                        app:layout_constraintTop_toTopOf="@id/note_entry_box">
 
-                    <ProgressBar
-                        android:id="@+id/send_progress"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent" />
+                        <ImageView
+                            android:id="@+id/send_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/ic_send_black_24dp"
+                            android:padding="8dp"
+                            android:tint="@color/secondaryDarkColor"
+                            android:contentDescription="@string/send_note"
+                            android:background="?attr/selectableItemBackgroundBorderless"/>
 
-                </ViewSwitcher>
+                        <ProgressBar
+                            android:id="@+id/send_progress"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent" />
+
+                    </ViewSwitcher>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
