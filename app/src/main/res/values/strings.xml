@@ -3,4 +3,9 @@
     <string name="action_settings">Settings</string>
     <string name="enter_note_here">Enter Note here</string>
     <string name="send_note">Send Note</string>
+    <string name="message_posted">Message Posted</string>
+
+    <string name="error_posting_message">Error Posting Message</string>
+    <string name="error_no_note_id">Error: No note ID returned</string>
+    <string name="error_empty_message">Error: Empty message</string>
 </resources>

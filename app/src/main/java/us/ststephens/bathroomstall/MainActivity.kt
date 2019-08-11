@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
             sendButton.setOnClickListener {
                 noteEntryBox?.text?.takeIf { it.isNotBlank() }?.toString()?.let { message ->
                     viewModel.postNote(message).observe(this, postNoteObserver)
-                } ?: Snackbar.make(findViewById(R.id.coordinator), "No message to send", Snackbar.LENGTH_SHORT).show()
+                } ?: Snackbar.make(findViewById(R.id.coordinator), R.string.error_empty_message, Snackbar.LENGTH_SHORT).show()
             }
         }
 
@@ -57,12 +57,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun messageAdded(messageId: String) {
         noteEntryBox?.text = null
-        Snackbar.make(findViewById<View>(R.id.coordinator), "messageId: $messageId", Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(findViewById(R.id.coordinator), R.string.message_posted, Snackbar.LENGTH_SHORT).show()
         Log.d("BathroomStall", "messageId: $messageId")
     }
 
     private fun errorAddingMessage(e: Exception) {
-        Snackbar.make(findViewById<View>(R.id.coordinator), "Error adding document. See log for more info", Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(findViewById<View>(R.id.coordinator), R.string.error_posting_message, Snackbar.LENGTH_SHORT).show()
         Log.w("BathroomStall", "Error adding document", e)
     }
 
@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
                 viewSwitcher?.displayedChild = 0
                 state.data?.id?.let {
                     messageAdded(it)
-                } ?: errorAddingMessage(Exception("No note id returned"))
+                } ?: errorAddingMessage(Exception(getString(R.string.error_no_note_id)))
             }
             is Error -> {
                 noteEntryBox?.isEnabled = true
