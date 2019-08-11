@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun errorAddingMessage(e: Exception) {
-        Snackbar.make(findViewById<View>(R.id.coordinator), R.string.error_posting_message, Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(findViewById(R.id.coordinator), R.string.error_posting_message, Snackbar.LENGTH_SHORT).show()
         Log.w("BathroomStall", "Error adding document", e)
     }
 
