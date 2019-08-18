@@ -8,4 +8,10 @@
     <string name="error_posting_message">Error Posting Message</string>
     <string name="error_no_note_id">Error: No note ID returned</string>
     <string name="error_empty_message">Error: Empty message</string>
+
+    Alert Dialogs
+    <string name="ok">OK</string>
+    <string name="permissions_required">Permission Required</string>
+    <string name="location_permission_reason">The location permission is used to retrieve and post notes near you</string>
+    <string name="location_permission_denied">The location permission is required to use this app. Please go to the device settings to enable the permission</string>
 </resources>

@@ -5,10 +5,10 @@ import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
-import android.location.Location
+import android.net.Uri
 import android.os.Bundle
-import android.os.HandlerThread
 import android.os.Looper
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -17,8 +17,8 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ViewSwitcher
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,7 +33,6 @@ import com.google.firebase.firestore.*
 import kotlinx.android.synthetic.main.activity_main.*
 import us.ststephens.bathroomstall.net.NetworkState
 import java.lang.Exception
-import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: NoteListViewModel
@@ -41,7 +40,7 @@ class MainActivity : AppCompatActivity() {
     private var noteEntryBox: EditText? = null
     private var swipeRefreshLayout: SwipeRefreshLayout? = null
     private var viewSwitcher: ViewSwitcher? = null
-
+    private var locationUpdatesAllowed = true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -83,7 +82,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        startLocationUpdates()
+        if (locationUpdatesAllowed) {
+            startLocationUpdates()
+        }
     }
 
     override fun onPause() {
@@ -118,30 +119,55 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startLocationUpdates() {
-        requestLocationPermission()
+        val permission =  Manifest.permission.ACCESS_FINE_LOCATION
+        if (checkLocationPermission(permission)) {
+            fetchLocationUpdates()
+        } else {
+            requestLocationPermission(permission)
+        }
     }
 
-    private fun requestLocationPermission() {
-        val permission =  Manifest.permission.ACCESS_FINE_LOCATION
-        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
-                //TODO show the reason why we need their location
-            } else {
-                ActivityCompat.requestPermissions(this, arrayOf(permission), REQ_LOCATION_PERMISSION)
-            }
+    private fun checkLocationPermission(permission: String) =
+        ActivityCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+
+    private fun requestLocationPermission(permission: String) {
+        locationUpdatesAllowed = false
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
+            //Show our reason for requesting these permissions
+            AlertDialog.Builder(this)
+                .setTitle(R.string.permissions_required)
+                .setMessage(R.string.location_permission_reason)
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok) { dialog, _ ->
+                    dialog.dismiss()
+                    ActivityCompat.requestPermissions(this, arrayOf(permission), REQ_LOCATION_PERMISSION)
+                }
+                .show()
         } else {
-            fetchLocationUpdates()
+            ActivityCompat.requestPermissions(this, arrayOf(permission), REQ_LOCATION_PERMISSION)
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when(requestCode) {
-            REQ_LOCATION_PERMISSION -> if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
-                fetchLocationUpdates()
-            } else {
-                //todo: Let the user know they can't use the app until they allow the location permission
+            REQ_LOCATION_PERMISSION -> {
+                if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
+                    locationUpdatesAllowed = true
+                    fetchLocationUpdates()
+                } else if (grantResults.isNotEmpty()) {
+                    //Permission Denied. Notify the user that this permission is required to continue
+                   AlertDialog.Builder(this)
+                        .setTitle(R.string.permissions_required)
+                        .setMessage(R.string.location_permission_denied)
+                        .setPositiveButton(R.string.ok) { dialog, _ ->
+                            dialog.dismiss()
+                            showDeviceSettings()
+                        }
+                        .show()
+                }
             }
+            //otherwise they were interrupted
         }
     }
 
@@ -176,6 +202,8 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == REQ_CHECK_SETTINGS) {
             startLocationUpdates()
+        } else if (requestCode == REQ_SETTINGS) {
+            locationUpdatesAllowed = true
         }
     }
 
@@ -218,9 +246,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun showDeviceSettings() {
+        // Build intent that displays the App settings screen.
+        val uri = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+        val intent = Intent().apply {
+            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+            data = uri
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        startActivityForResult(intent, REQ_SETTINGS)
+    }
+
     companion object {
         private const val REQ_CHECK_SETTINGS = 5
         private const val REQ_LOCATION_PERMISSION = 6
+        private const val REQ_SETTINGS = 7
     }
 }
 
