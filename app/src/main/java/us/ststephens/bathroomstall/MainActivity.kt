@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var noteEntryBox: EditText? = null
     private var swipeRefreshLayout: SwipeRefreshLayout? = null
+    private var sendButton: ImageView? = null
     private var viewSwitcher: ViewSwitcher? = null
     private var locationUpdatesAllowed = true
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,8 +54,8 @@ class MainActivity : AppCompatActivity() {
         viewSwitcher?.displayedChild = 0
 
 
-        findViewById<ImageView>(R.id.send_button).let { sendButton ->
-            toggleSendButton(sendButton, noteEntryBox?.text?.isNotEmpty() == true)
+        sendButton = findViewById<ImageView>(R.id.send_button).also { sendButton ->
+            toggleSendButton(sendButton)
             noteEntryBox?.addTextChangedListener(MessageChangeListener(sendButton))
             sendButton.setOnClickListener {
                 noteEntryBox?.text?.takeIf { it.isNotBlank() }?.toString()?.let { message ->
@@ -71,11 +72,10 @@ class MainActivity : AppCompatActivity() {
         viewModel.getNotes().observe(this, noteListObserver)
 
         viewModel.isLocationServiceAvailable.observe(this, Observer { isAvailable ->
-            Log.d("Stall", "Location Available? $isAvailable")
+            onLocationAvailabilityChange(isAvailable)
         })
 
         viewModel.lastKnownLocation.observe(this, Observer { location ->
-            Snackbar.make(findViewById(R.id.coordinator), "Location recorded: $location", Snackbar.LENGTH_INDEFINITE).show()
             Log.d("Stall", "Location recorded: $location")
         })
     }
@@ -90,6 +90,30 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         stopLocationUpdates()
+    }
+
+    private var locationSnackbar: Snackbar? = null
+    private fun onLocationAvailabilityChange(isAvailable: Boolean) {
+        Log.d("Stall", "Location Available? $isAvailable")
+        if (!isAvailable) {
+            if (locationSnackbar?.isShown != true) {
+                locationSnackbar = Snackbar.make(
+                    findViewById(R.id.coordinator),
+                    R.string.location_unavailable,
+                    Snackbar.LENGTH_INDEFINITE
+                ).apply { show() }
+            }
+        } else {
+            //Dismiss the snackbar if it's shown,
+            //Otherwise alert the user that location services are back
+            locationSnackbar?.takeIf { it.isShown }?.dismiss() ?:
+            Snackbar.make(
+                findViewById(R.id.coordinator),
+                R.string.location_available,
+                Snackbar.LENGTH_SHORT
+            ).show()
+        }
+        sendButton?.let { toggleSendButton(it) }
     }
 
     private fun messageAdded(messageId: String) {
@@ -109,13 +133,14 @@ class MainActivity : AppCompatActivity() {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            toggleSendButton(view, !s.isNullOrBlank())
+            toggleSendButton(view)
         }
     }
 
-    private fun toggleSendButton(view: View, isEnabled: Boolean) {
-        view.isEnabled = isEnabled
-        view.alpha = if (isEnabled) 1f else .65f
+    private fun toggleSendButton(view: View) {
+        view.isEnabled = noteEntryBox?.text?.isNotBlank() == true &&
+                viewModel.isLocationServiceAvailable.value == true
+        view.alpha = if (view.isEnabled) 1f else .65f
     }
 
     private fun startLocationUpdates() {
